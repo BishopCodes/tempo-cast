@@ -1,0 +1,326 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "jira-tempo-cast",
+  "title": "Tempo Time Tracking",
+  "icon": "assets/command.svg",
+  "author": "BishopCodes",
+  "description": "Log time to Jira issues using Tempo. Timer, backfill week, and AI summaries.",
+  "categories": [
+    "Productivity"
+  ],
+  "license": "MIT",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the \\`prepublishOnly\\` script and rerun \\`npm publish\\` again.\\nIf you wanted to publish it to the Raycast Store instead, use \\`npm run publish\\` instead.\\n\\n\" && exit 1",
+    "publish": "npx @raycast/api@latest publish"
+  },
+  "keywords": [
+    "jira",
+    "tempo",
+    "raycast"
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.99.2",
+    "@raycast/utils": "^1.17.0",
+    "cross-fetch": "^4.1.0",
+    "date-fns": "^4.1.0",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.0.4",
+    "@types/node": "22.13.10",
+    "@types/react": "19.0.10",
+    "eslint": "^9.22.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "preferences": [
+    {
+      "name": "jiraBaseUrl",
+      "description": "Your Jira instance base URL (e.g., your-domain.atlassian.net)",
+      "type": "textfield",
+      "required": true,
+      "title": "Jira Base URL",
+      "placeholder": "your-domain.atlassian.net"
+    },
+    {
+      "name": "jiraEmail",
+      "description": "Your Jira email address used for authentication",
+      "type": "textfield",
+      "required": true,
+      "title": "Jira Email",
+      "placeholder": "your-email@example.com"
+    },
+    {
+      "name": "jiraApiToken",
+      "description": "Your Jira API token (create one at https://id.atlassian.com/manage-profile/security/api-tokens)",
+      "type": "password",
+      "required": true,
+      "title": "Jira API Token"
+    },
+    {
+      "name": "tempoApiToken",
+      "description": "Your Tempo API token (create one at https://<your-domain>.atlassian.net/plugins/servlet/ac/io.tempo.jira/tempo-app#!/configuration/api-integration)",
+      "type": "password",
+      "required": true,
+      "title": "Tempo API Token"
+    },
+    {
+      "name": "roundingMode",
+      "description": "Rounding mode for timer and backfill operations",
+      "required": false,
+      "type": "dropdown",
+      "title": "Rounding Mode (Timer & Backfill)",
+      "default": "up15",
+      "data": [
+        {
+          "title": "None",
+          "value": "none"
+        },
+        {
+          "title": "Up 15m",
+          "value": "up15"
+        },
+        {
+          "title": "Nearest 15m",
+          "value": "nearest15"
+        },
+        {
+          "title": "Down 15m",
+          "value": "down15"
+        }
+      ]
+    },
+    {
+      "name": "backfillDefaultWeek",
+      "description": "Default week for backfill operations",
+      "required": false,
+      "type": "dropdown",
+      "title": "Backfill Default Week",
+      "default": "twoWeeksAgo",
+      "data": [
+        {
+          "title": "This Week",
+          "value": "this"
+        },
+        {
+          "title": "Last Week",
+          "value": "last"
+        },
+        {
+          "title": "Two Weeks Ago",
+          "value": "twoWeeksAgo"
+        }
+      ]
+    },
+    {
+      "name": "timeInputMethod",
+      "description": "Choose how to input time duration and start time",
+      "required": false,
+      "type": "dropdown",
+      "title": "Time Input Method",
+      "default": "dropdown",
+      "data": [
+        {
+          "title": "Dropdown (Select from predefined options)",
+          "value": "dropdown"
+        },
+        {
+          "title": "Text Input (Type duration manually)",
+          "value": "text"
+        }
+      ]
+    },
+    {
+      "name": "aiProvider",
+      "required": false,
+      "description": "AI provider for generating summaries",
+      "type": "dropdown",
+      "title": "AI Provider (Summaries)",
+      "default": "github",
+      "data": [
+        {
+          "title": "GitHub Copilot (via OAuth)",
+          "value": "github"
+        },
+        {
+          "title": "Ollama (local)",
+          "value": "ollama"
+        },
+        {
+          "title": "None",
+          "value": "none"
+        }
+      ]
+    },
+    {
+      "name": "githubModel",
+      "description": "GitHub Copilot model ID to use for AI features. Use 'Tempo: View Available AI Models' command to see all supported models.",
+      "required": false,
+      "type": "textfield",
+      "title": "GitHub Model",
+      "default": "gpt-4o-mini",
+      "placeholder": "gpt-4o-mini"
+    },
+    {
+      "name": "aiLookbackWeeks",
+      "description": "Number of weeks to analyze for AI pattern suggestions",
+      "required": false,
+      "type": "dropdown",
+      "title": "AI Pattern Lookback Period",
+      "default": "4",
+      "data": [
+        {
+          "title": "1 Week",
+          "value": "1"
+        },
+        {
+          "title": "2 Weeks",
+          "value": "2"
+        },
+        {
+          "title": "3 Weeks",
+          "value": "3"
+        },
+        {
+          "title": "4 Weeks (Recommended)",
+          "value": "4"
+        },
+        {
+          "title": "6 Weeks",
+          "value": "6"
+        },
+        {
+          "title": "8 Weeks",
+          "value": "8"
+        },
+        {
+          "title": "12 Weeks",
+          "value": "12"
+        },
+        {
+          "title": "16 Weeks",
+          "value": "16"
+        }
+      ]
+    },
+    {
+      "name": "enableGitHubPRs",
+      "description": "Show Jira issues from your GitHub PRs and commits in Backfill Week view",
+      "required": false,
+      "type": "checkbox",
+      "title": "Enable GitHub PR Suggestions",
+      "default": true,
+      "label": "Show issues from GitHub PRs"
+    },
+    {
+      "name": "timerNotifyAt",
+      "description": "Hours at which to notify about long-running timers (comma-separated, e.g., 1,4,8)",
+      "required": false,
+      "type": "textfield",
+      "title": "Timer Notification Hours",
+      "default": "1,4,8",
+      "placeholder": "1,4,8"
+    },
+    {
+      "name": "ollamaHost",
+      "description": "Ollama host URL (e.g., http://127.0.0.1:11434)",
+      "required": false,
+      "type": "textfield",
+      "title": "Ollama Host",
+      "default": "http://127.0.0.1:11434"
+    },
+    {
+      "name": "ollamaModel",
+      "description": "Ollama model to use for AI summaries",
+      "required": false,
+      "type": "textfield",
+      "title": "Ollama Model",
+      "default": "llama3.1:8b"
+    }
+  ],
+  "commands": [
+    {
+      "name": "quick-log",
+      "title": "Tempo: Quick Log Time",
+      "description": "Quickly log time using natural language (e.g., ABC-123 2h working on feature)",
+      "mode": "view",
+      "icon": "assets/command.svg"
+    },
+    {
+      "name": "authorize-github",
+      "title": "Tempo: Authorize GitHub Copilot",
+      "description": "Authorize GitHub Copilot for AI features using OAuth",
+      "mode": "view",
+      "icon": "assets/ai.svg"
+    },
+    {
+      "name": "view-models",
+      "title": "Tempo: View Available AI Models",
+      "description": "View and refresh list of available GitHub Copilot models",
+      "mode": "view",
+      "icon": "assets/ai.svg"
+    },
+    {
+      "name": "log-time",
+      "title": "Tempo: Log Time",
+      "description": "Log time to a Jira issue using Tempo",
+      "subtitle": "Create worklog via Tempo",
+      "mode": "view",
+      "icon": "assets/command.svg"
+    },
+    {
+      "name": "worklogs",
+      "description": "View your worklogs for today",
+      "title": "Tempo: My Worklogs (Today)",
+      "mode": "view",
+      "icon": "assets/list.svg"
+    },
+    {
+      "name": "start-timer",
+      "title": "Tempo: Start Timer",
+      "description": "Start a timer for a Jira issue using Tempo",
+      "mode": "view",
+      "icon": "assets/start.svg"
+    },
+    {
+      "name": "stop-timer",
+      "title": "Tempo: Active Timer",
+      "description": "View active timer (live) & stop/log when ready",
+      "mode": "view",
+      "icon": "assets/stop.svg"
+    },
+    {
+      "name": "backfill-week",
+      "title": "Tempo: Backfill Week (Quick Entry)",
+      "description": "Backfill time for a week using Tempo",
+      "mode": "view",
+      "icon": "assets/calendar.svg"
+    },
+    {
+      "name": "ai-summary",
+      "title": "Tempo: AI Summary (Week)",
+      "description": "Generate an AI summary of your worklogs for the week",
+      "mode": "view",
+      "icon": "assets/ai.svg"
+    },
+    {
+      "name": "manage-queries",
+      "title": "Tempo: Manage JQL Queries",
+      "description": "Add, edit, remove saved JQL queries",
+      "mode": "view",
+      "icon": "assets/command.svg"
+    },
+    {
+      "name": "timer-menu",
+      "title": "Tempo Timer",
+      "description": "Show active timer in menu bar",
+      "mode": "menu-bar",
+      "interval": "1s"
+    }
+  ]
+}
