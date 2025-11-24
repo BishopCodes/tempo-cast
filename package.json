@@ -101,7 +101,7 @@
       "required": false,
       "type": "dropdown",
       "title": "Backfill Default Week",
-      "default": "twoWeeksAgo",
+      "default": "last",
       "data": [
         {
           "title": "This Week",
@@ -259,6 +259,13 @@
       "icon": "assets/ai.svg"
     },
     {
+      "name": "authorize-github-pat",
+      "title": "Tempo: Authorize GitHub PAT",
+      "description": "Set your GitHub Personal Access Token for PR/commit access (requires 'repo' scope)",
+      "mode": "view",
+      "icon": "assets/command.svg"
+    },
+    {
       "name": "view-models",
       "title": "Tempo: View Available AI Models",
       "description": "View and refresh list of available GitHub Copilot models",
@@ -300,6 +307,13 @@
       "description": "Backfill time for a week using Tempo",
       "mode": "view",
       "icon": "assets/calendar.svg"
+    },
+    {
+      "name": "browse-github-prs",
+      "title": "Tempo: Browse GitHub PRs for Issues",
+      "description": "Browse your GitHub PRs and commits to find Jira issues for time logging",
+      "mode": "view",
+      "icon": "assets/command.svg"
     },
     {
       "name": "ai-summary",

@@ -6,6 +6,7 @@ import { setTimeout } from "timers/promises";
 const GITHUB_COPILOT_CLIENT_ID = "Iv1.b507a08c87ecfe98";
 
 const STORAGE_KEY = "github_oauth_token";
+const PAT_STORAGE_KEY = "github_personal_access_token";
 
 export interface DeviceCodeResponse {
   device_code: string;
@@ -148,4 +149,37 @@ export async function getCopilotToken(githubToken: string): Promise<string> {
 
   const data = await response.json();
   return data.token;
+}
+
+// ============================================================================
+// Personal Access Token (PAT) for GitHub API (PR/commit access)
+// ============================================================================
+
+/**
+ * Get the stored GitHub Personal Access Token
+ */
+export async function getGitHubPAT(): Promise<string | undefined> {
+  return await LocalStorage.getItem<string>(PAT_STORAGE_KEY);
+}
+
+/**
+ * Store a GitHub Personal Access Token
+ */
+export async function setGitHubPAT(token: string): Promise<void> {
+  await LocalStorage.setItem(PAT_STORAGE_KEY, token);
+}
+
+/**
+ * Remove the stored GitHub Personal Access Token
+ */
+export async function removeGitHubPAT(): Promise<void> {
+  await LocalStorage.removeItem(PAT_STORAGE_KEY);
+}
+
+/**
+ * Check if user has set a Personal Access Token
+ */
+export async function hasPAT(): Promise<boolean> {
+  const token = await getGitHubPAT();
+  return !!token;
 }

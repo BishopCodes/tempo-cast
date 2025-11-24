@@ -39,6 +39,16 @@ export default function Command() {
   const [manualIssue, setManualIssue] = useState("");
   const [startDateTime, setStartDateTime] = useState<Date | null>(null);
   const [plannedDuration, setPlannedDuration] = useState(1800);
+
+  function getJqlEditTitle(): string {
+    if (previewLoading) {
+      return "Edit Selected JQL (Loading preview...)";
+    }
+    if (previewCount !== null) {
+      return `Edit Selected JQL (Matches: ${previewCount})`;
+    }
+    return "Edit Selected JQL";
+  }
   const [plannedStart, setPlannedStart] = useState("09:00:00");
 
   const { workTypes, loading: loadingWorkTypes } = useWorkTypes();
@@ -154,12 +164,7 @@ export default function Command() {
         ))}
       </Form.Dropdown>
       {editingJql ? (
-        <Form.TextArea
-          id="jqlEdit"
-          title={`Edit Selected JQL${previewLoading ? " (Loading preview...)" : previewCount !== null ? ` (Matches: ${previewCount})` : ""}`}
-          value={jqlEditValue}
-          onChange={setJqlEditValue}
-        />
+        <Form.TextArea id="jqlEdit" title={getJqlEditTitle()} value={jqlEditValue} onChange={setJqlEditValue} />
       ) : null}
       <Form.Dropdown id="issueKey" title="Issue" value={selectedIssue} onChange={setSelectedIssue} storeValue>
         {issues.map((i) => (

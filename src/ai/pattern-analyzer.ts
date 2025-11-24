@@ -93,26 +93,30 @@ export async function analyzeWorklogPatterns(
     }))
     .sort((a, b) => b.timesWorked - a.timesWorked);
 
-  const prompt = `You are analyzing work patterns to help a developer backfill their timesheet.
+  const prompt = `You are analyzing TEMPO WORKLOG patterns to help a developer backfill their timesheet.
 
-Past ${pastWeeks.length} weeks of work data:
+IMPORTANT: This data is ONLY from past Tempo time entries, NOT from Git commits or pull requests.
+
+Past ${pastWeeks.length} weeks of Tempo worklog data:
 ${JSON.stringify(issueList, null, 2)}
 
 Target week: ${targetWeekStart}
 
-Based on the patterns above, suggest 5-8 tasks this person is most likely to work on in the target week.
+Based ONLY on the Tempo worklog patterns above, suggest 5-8 tasks this person is most likely to work on in the target week.
 
 For each suggestion, consider:
-- How frequently they work on this task (higher frequency = more likely)
-- How recently they worked on it (more recent = more likely)
-- Whether there's a regular weekly pattern
+- How frequently they logged time on this task (higher frequency = more likely)
+- How recently they logged time on it (more recent = more likely)
+- Whether there's a regular weekly pattern in their time logs
 - The typical time investment
+
+IMPORTANT: Base your reasoning ONLY on the Tempo worklog frequency and patterns. Do NOT mention Git commits, pull requests, or any Git-related activity.
 
 Return a JSON array of suggestions with this structure:
 [
   {
     "issueKey": "ABC-123",
-    "reasoning": "Brief explanation of why this task is likely (1-2 sentences)",
+    "reasoning": "Brief explanation based on Tempo worklog patterns only (1-2 sentences)",
     "confidence": "high" | "medium" | "low",
     "estimatedDuration": <seconds>
   }
@@ -180,7 +184,7 @@ Return ONLY the JSON array, no other text.`;
           frequency: stats.count,
           lastWorked: stats.lastDate,
           confidence: "medium" as const,
-          reasoning: `Worked on ${stats.count} times in past ${pastWeeks.length} weeks`,
+          reasoning: `Logged ${stats.count} times in past ${pastWeeks.length} weeks of Tempo entries`,
         };
       }),
     );

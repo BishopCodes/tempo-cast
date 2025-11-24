@@ -33,6 +33,16 @@ export default function StartTimer() {
   const [existingTimer, setExistingTimer] = useState<Awaited<ReturnType<typeof getActiveTimer>>>(null);
   const [manualIssue, setManualIssue] = useState("");
 
+  function getJqlEditTitle(): string {
+    if (previewLoading) {
+      return "Edit Selected JQL (Loading preview...)";
+    }
+    if (previewCount !== null) {
+      return `Edit Selected JQL (Matches: ${previewCount})`;
+    }
+    return "Edit Selected JQL";
+  }
+
   useEffect(() => {
     (async () => {
       try {
@@ -193,12 +203,7 @@ export default function StartTimer() {
         ))}
       </Form.Dropdown>
       {editingJql ? (
-        <Form.TextArea
-          id="jqlEdit"
-          title={`Edit Selected JQL${previewLoading ? " (Loading preview...)" : previewCount !== null ? ` (Matches: ${previewCount})` : ""}`}
-          value={jqlEditValue}
-          onChange={setJqlEditValue}
-        />
+        <Form.TextArea id="jqlEdit" title={getJqlEditTitle()} value={jqlEditValue} onChange={setJqlEditValue} />
       ) : null}
       <Form.Dropdown id="issueKey" title="Issue" value={selectedIssue} onChange={setSelectedIssue} storeValue>
         {issues.map((i) => (

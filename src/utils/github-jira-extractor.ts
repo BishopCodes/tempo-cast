@@ -17,16 +17,16 @@ export interface JiraIssueReference {
  */
 export function extractJiraKeys(text: string): string[] {
   if (!text) return [];
-  
+
   // Match Jira issue keys: 2+ uppercase letters, hyphen, 1+ digits
   const regex = /\b([A-Z]{2,})-(\d+)\b/g;
   const matches = text.matchAll(regex);
-  
+
   const keys = new Set<string>();
   for (const match of matches) {
     keys.add(match[0]);
   }
-  
+
   return Array.from(keys);
 }
 
@@ -68,20 +68,22 @@ export function extractJiraFromPR(pr: GitHubPR): JiraIssueReference[] {
   }
 
   // Extract from branch name
-  const branchKeys = extractJiraKeys(pr.head.ref);
-  branchKeys.forEach((key) => {
-    // Avoid duplicates from title/body
-    if (!titleKeys.includes(key) && !references.some((r) => r.issueKey === key)) {
-      references.push({
-        issueKey: key,
-        source: "pr-branch",
-        prNumber: pr.number,
-        prTitle: pr.title,
-        prUrl: pr.html_url,
-        date: pr.merged_at || pr.created_at,
-      });
-    }
-  });
+  if (pr.head && pr.head.ref) {
+    const branchKeys = extractJiraKeys(pr.head.ref);
+    branchKeys.forEach((key) => {
+      // Avoid duplicates from title/body
+      if (!titleKeys.includes(key) && !references.some((r) => r.issueKey === key)) {
+        references.push({
+          issueKey: key,
+          source: "pr-branch",
+          prNumber: pr.number,
+          prTitle: pr.title,
+          prUrl: pr.html_url,
+          date: pr.merged_at || pr.created_at,
+        });
+      }
+    });
+  }
 
   return references;
 }

@@ -46,6 +46,8 @@ declare namespace Preferences {
   export type QuickLog = ExtensionPreferences & {}
   /** Preferences accessible in the `authorize-github` command */
   export type AuthorizeGithub = ExtensionPreferences & {}
+  /** Preferences accessible in the `authorize-github-pat` command */
+  export type AuthorizeGithubPat = ExtensionPreferences & {}
   /** Preferences accessible in the `view-models` command */
   export type ViewModels = ExtensionPreferences & {}
   /** Preferences accessible in the `log-time` command */
@@ -58,6 +60,8 @@ declare namespace Preferences {
   export type StopTimer = ExtensionPreferences & {}
   /** Preferences accessible in the `backfill-week` command */
   export type BackfillWeek = ExtensionPreferences & {}
+  /** Preferences accessible in the `browse-github-prs` command */
+  export type BrowseGithubPrs = ExtensionPreferences & {}
   /** Preferences accessible in the `ai-summary` command */
   export type AiSummary = ExtensionPreferences & {}
   /** Preferences accessible in the `manage-queries` command */
@@ -71,6 +75,8 @@ declare namespace Arguments {
   export type QuickLog = {}
   /** Arguments passed to the `authorize-github` command */
   export type AuthorizeGithub = {}
+  /** Arguments passed to the `authorize-github-pat` command */
+  export type AuthorizeGithubPat = {}
   /** Arguments passed to the `view-models` command */
   export type ViewModels = {}
   /** Arguments passed to the `log-time` command */
@@ -83,6 +89,8 @@ declare namespace Arguments {
   export type StopTimer = {}
   /** Arguments passed to the `backfill-week` command */
   export type BackfillWeek = {}
+  /** Arguments passed to the `browse-github-prs` command */
+  export type BrowseGithubPrs = {}
   /** Arguments passed to the `ai-summary` command */
   export type AiSummary = {}
   /** Arguments passed to the `manage-queries` command */
